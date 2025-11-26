@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-dotenv.config();
+// import dotenv from 'dotenv';
+// dotenv.config();
+// heroku não precisa, mas local precisa
 
 const connectDB = async () => {
   try {

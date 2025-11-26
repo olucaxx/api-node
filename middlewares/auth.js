@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-dotenv.config();
+// import dotenv from 'dotenv';
+// dotenv.config();
+// heroku não precisa, mas local precisa
 
 const JWT_SECRET = process.env.JWT_SECRET;
 

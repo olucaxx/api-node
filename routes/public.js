@@ -2,8 +2,9 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js'; // Importa o model
-import dotenv from 'dotenv';
-dotenv.config();
+// import dotenv from 'dotenv';
+// dotenv.config();
+// heroku não precisa, mas local precisa
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
