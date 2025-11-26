@@ -1,69 +1,87 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-
-import pkg from '@prisma/client';
-const { PrismaClient } = pkg;
-const prisma = new PrismaClient();
+import User from '../models/User.js'; // Importa o model
+import dotenv from 'dotenv';
+dotenv.config();
 
 const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET;
 
-const JWT_SECRET= process.env.JWT_SECRET
-
+// CADASTRO
 router.post('/cadastro', async (req, res) => {
+    try {
+        const userData = req.body;
 
-    try{
-    const user = req.body
-
-    const salt = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(user.password, salt);
-
-    const userDB = await Prisma.user.create({
-        data: {
-            email: user.email,
-            name: user.name,
-            password: hashPassword,
+        // Verifica se usuário já existe
+        const existingUser = await User.findOne({ email: userData.email });
+        if (existingUser) {
+            return res.status(400).json({ message: "Usuário já existe" });
         }
-    });
-    res.status(201).json(userDB);
-}
-catch(err){
-    res.status(500).json({message: "Erro no Servidor, tente novamente"})
-}
-});
 
-//login
+        const salt = await bcrypt.genSalt(10);
+        const hashPassword = await bcrypt.hash(userData.password, salt);
 
-router.post('/login', async(req, res) => {
-    try{
-        const userInfo = HTMLTableRowElement.body
-        const user = await Prisma.user.findUnique({ 
-            where: {email: userInfo.email}
+        // CORREÇÃO: usa User.create() em vez de Prisma
+        const userDB = await User.create({
+            email: userData.email,
+            name: userData.name,
+            password: hashPassword,
         });
 
-        //verifica se o usuario existe
-        if(!user){
-            return res.status(404).json ({ message: 'Usuário não encontrado'});
+        res.status(201).json({ 
+            message: "Usuário criado com sucesso",
+            user: {
+                id: userDB._id,
+                email: userDB.email,
+                name: userDB.name
+            }
+        });
+    }
+    catch(err) {
+        console.log(err);
+        res.status(500).json({ message: "Erro no Servidor, tente novamente" });
+    }
+});
+
+// LOGIN
+router.post('/login', async (req, res) => {
+    try {
+        const userInfo = req.body; // CORREÇÃO: era HTMLTableRowElement.body 🤣
+        
+        // CORREÇÃO: usa mongoose em vez de Prisma
+        const user = await User.findOne({ email: userInfo.email });
+
+        // Verifica se o usuário existe
+        if(!user) {
+            return res.status(404).json({ message: 'Usuário não encontrado' });
         }
 
-        //compara as senhas do banco com o que o usuario digitou
-        const isMatch = await bcrypt.compare(userInfo.password, user.password)
-        if(isMatch){
-            return res.status(400).json({ message: 'Senha inválida'})
+        // Compara as senhas
+        const isMatch = await bcrypt.compare(userInfo.password, user.password);
+        
+        // CORREÇÃO: lógica invertida - se NÃO for match
+        if(!isMatch) {
+            return res.status(400).json({ message: 'Senha inválida' });
         }
 
-        //gerar token
-        const token = jwt.sign ({ id: user.id}, JWT_SECRET, {expiresIn: '1m'})
+        // Gera token
+        const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
 
-        res.status(200).json(token);
+        res.status(200).json({
+            message: "Login realizado com sucesso",
+            token: token,
+            user: {
+                id: user._id,
+                email: user.email,
+                name: user.name
+            }
+        });
     }
-    catch(err){
-    res.status(500).json({message: "Erro no Servidor, tente novamente"});
+    catch(err) {
+        console.log(err);
+        res.status(500).json({ message: "Erro no Servidor, tente novamente" });
     }
-})
+});
 
-export default router
-
-//rafael
-//aeTjnUUomFmYhxYk
-//mongodb+srv://rafael:aeTjnUUomFmYhxYk@users.awodmlq.mongodb.net/?appName=Users
+export default router;

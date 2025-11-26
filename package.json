@@ -5,19 +5,33 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^7.0.0",
     "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
     "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^9.0.0"
+  },
+  "engines": {
+    "node": "18.x"
   },
   "devDependencies": {
     "dotenv": "^17.2.3",
-    "prisma": "^6.19.0"
-  }
+    "nodemon": "^3.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Marsonn07/api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Marsonn07/api/issues"
+  },
+  "homepage": "https://github.com/Marsonn07/api#readme"
 }

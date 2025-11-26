@@ -1,22 +1,31 @@
 import express from 'express';
-import pkg from '@prisma/client';
-const { PrismaClient } = pkg;
-
+import User from '../models/User.js'; // Importa o model
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
-router.get('/listar-usuarios', async (req, res)=> {
+// CORREÇÃO: remove Prisma, usa mongoose
+router.get('/listar-usuarios', async (req, res) => {
     try {
-
-        const user = await prisma.user.findMany()
-        res.status(200).json ({ message: 'Usuários listados com sucesso', users })
-
+        const users = await User.find().select('-password'); // Exclui a senha
+        res.status(200).json({ 
+            message: 'Usuários listados com sucesso', 
+            users: users 
+        });
     }
-    catch(err){
-        console.log (err)
-        res.status(500).json({ message: 'Falha no servidor'})
+    catch(err) {
+        console.log(err);
+        res.status(500).json({ message: 'Falha no servidor' });
     }
-})
+});
+
+// Rota de exemplo que usa o auth
+router.get('/perfil', async (req, res) => {
+    try {
+        const user = await User.findById(req.userId).select('-password');
+        res.json({ user });
+    } catch (err) {
+        res.status(500).json({ message: 'Erro ao buscar perfil' });
+    }
+});
 
 export default router;
